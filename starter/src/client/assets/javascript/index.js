@@ -94,30 +94,45 @@ async function handleCreateRace() {
     renderAt("#race", renderRaceStartView(store.track_name));
 
     // TODO - Get player_id and track_id from the store
-	const player_id = store.player_id;
-	const track_id = store.track_id;
+    const player_id = store.player_id;
+    const track_id = store.track_id;
 
     // const race = TODO - call the asynchronous method createRace, passing the correct parameters
-	const race = await createRace(player_id, track_id);
+    const race = await createRace(player_id, track_id);
     // TODO - update the store with the race id in the response
     // TIP - console logging API responses can be really helpful to know what data shape you received
     console.log("RACE: ", race);
     // store.race_id =
-	store.race_id = race.ID
+    store.race_id = race.ID;
 
     // The race has been created, now start the countdown
     // TODO - call the async function runCountdown
-	runCountdown();
+    runCountdown();
     // TODO - call the async function startRace
     // TIP - remember to always check if a function takes parameters before calling it!
-	startRace(store.race_id)
+    startRace(store.race_id);
     // TODO - call the async function runRace
-	runRace(store.race_id)
+    runRace(store.race_id);
 }
 
 function runRace(raceID) {
     return new Promise((resolve) => {
         // TODO - use Javascript's built in setInterval method to get race info (getRace function) every 500ms
+        let raceInfo;
+        const raceInterval = setInterval(() => {
+            raceInfo = getRace(raceID);
+            if (raceInfo) {
+                raceInfo.then((res) => {
+                    if ((res.status === "in-progress")) {
+                        renderAt("#leaderBoard", raceProgress(res.positions));
+                    } else if ((res.status === "finished")) {
+                        clearInterval(raceInterval); // to stop the interval from repeating
+                        renderAt("#race", resultsView(res.positions)); // to render the results view
+                        resolve(res); // resolve the promise
+                    }
+                });
+            }
+        }, 500);
         /* 
 			TODO - if the race info status property is "in-progress", update the leaderboard by calling:
 	
@@ -130,7 +145,7 @@ function runRace(raceID) {
 			renderAt('#race', resultsView(res.positions)) // to render the results view
 			resolve(res) // resolve the promise
 		*/
-    });
+    }).catch((error) => console.error(error));
     // remember to add error handling for the Promise
 }
 
@@ -377,8 +392,7 @@ function startRace(id) {
     return fetch(`${SERVER}/api/races/${id}/start`, {
         method: "POST",
         ...defaultFetchOpts(),
-    })
-        .catch((err) => console.log("Problem with getRace request::", err));
+    }).catch((err) => console.log("Problem with getRace request::", err));
 }
 
 function accelerate(id) {
@@ -389,6 +403,5 @@ function accelerate(id) {
     return fetch(`${SERVER}/api/races/${id}/accelerate`, {
         method: "POST",
         ...defaultFetchOpts(),
-    })
-        .catch((error) => console.error(error));
+    }).catch((error) => console.error(error));
 }
