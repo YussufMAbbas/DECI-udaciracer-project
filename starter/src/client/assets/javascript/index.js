@@ -94,21 +94,25 @@ async function handleCreateRace() {
     renderAt("#race", renderRaceStartView(store.track_name));
 
     // TODO - Get player_id and track_id from the store
+	const player_id = store.player_id;
+	const track_id = store.track_id;
 
     // const race = TODO - call the asynchronous method createRace, passing the correct parameters
-
+	const race = await createRace(player_id, track_id);
     // TODO - update the store with the race id in the response
     // TIP - console logging API responses can be really helpful to know what data shape you received
     console.log("RACE: ", race);
     // store.race_id =
+	store.race_id = race.ID
 
     // The race has been created, now start the countdown
     // TODO - call the async function runCountdown
-
+	runCountdown();
     // TODO - call the async function startRace
     // TIP - remember to always check if a function takes parameters before calling it!
-
+	startRace(store.race_id)
     // TODO - call the async function runRace
+	runRace(store.race_id)
 }
 
 function runRace(raceID) {
