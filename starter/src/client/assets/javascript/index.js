@@ -107,12 +107,12 @@ async function handleCreateRace() {
 
     // The race has been created, now start the countdown
     // TODO - call the async function runCountdown
-    runCountdown();
+    await runCountdown();
     // TODO - call the async function startRace
     // TIP - remember to always check if a function takes parameters before calling it!
-    startRace(store.race_id);
+    await startRace(store.race_id);
     // TODO - call the async function runRace
-    runRace(store.race_id);
+    await runRace(store.race_id);
 }
 
 function runRace(raceID) {
@@ -123,9 +123,9 @@ function runRace(raceID) {
             raceInfo = getRace(raceID);
             if (raceInfo) {
                 raceInfo.then((res) => {
-                    if ((res.status === "in-progress")) {
+                    if (res.status === "in-progress") {
                         renderAt("#leaderBoard", raceProgress(res.positions));
-                    } else if ((res.status === "finished")) {
+                    } else if (res.status === "finished") {
                         clearInterval(raceInterval); // to stop the interval from repeating
                         renderAt("#race", resultsView(res.positions)); // to render the results view
                         resolve(res); // resolve the promise
